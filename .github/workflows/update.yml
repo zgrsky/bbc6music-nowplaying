@@ -1,0 +1,26 @@
+name: Update nowplaying JSON
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"  # Каждую минуту
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch nowplaying data
+        run: |
+          mkdir -p docs
+          curl -s https://bbc6music-nowplaying.onrender.com/nowplaying > docs/nowplaying.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add docs/nowplaying.json || true
+          git commit -m "Update nowplaying" || echo "No changes"
+          git push
